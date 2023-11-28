@@ -12,10 +12,13 @@ jobs:
         run: |
             gem install fastlane
       - name: Run Fastlane
+       
         run: | 
           cd ios
           fastlane beta_ci
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
+          MATCH_KEYCHAIN_PASSWORD: ${{ secrets.MATCH_KEYCHAIN_PASSWORD }}
+          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
       - name: add test
         run: fastlane pilot add thomas_0836@qq.com -a thomas_0836@qq.com
