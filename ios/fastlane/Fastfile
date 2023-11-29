@@ -1,23 +1,154 @@
 default_platform(:ios)
 
 platform :ios do
-  desc "Push a new release build to the App Store"
-  lane :release do
-    match(type: 'appstore')
+  $keychain_name = SecureRandom.uuid
+  $keychain_password = SecureRandom.hex(100)
+  $is_ci = ENV['CI']
 
-    increment_build_number(xcodeproj: "Runner.xcodeproj")
-    build_app(workspace: "Runner.xcworkspace", scheme: "Runner")
-    upload_to_app_store
+  after_all do |lane, options|
+    remove_keychain
   end
 
-  lane :beta_ci do
-    setup_ci if ENV['CI']
-    match(type: 'appstore')
-    increment_build_number(build_number: number_of_commits)
-    build_app
-    changelog_from_git_commits # this will generate the changelog based on your last commits
-    upload_to_testflight(skip_waiting_for_build_processing: true)
+  error do |lane, exception, options|
+    remove_keychain
   end
+
+  desc "Remove Keychain from CI"
+  private_lane :remove_keychain do |options|
+    if $is_ci
+      if File.exist?(File.expand_path("~/Library/Keychains/#{$keychain_name}-db"))
+        UI.important "Deleting keychain #{$keychain_name}"
+        delete_keychain(name: $keychain_name)
+      elsif
+        UI.important "No keychain file found to delete"
+      end
+    end
+  end
+
+  desc "Setup Keychain for match on CI"
+  private_lane :setup_keychain do |options|
+      create_keychain(
+        name: $keychain_name,
+        password: $keychain_password,
+        default_keychain: true,
+        unlock: false,
+        timeout: 0,
+        lock_when_sleeps: true
+      )
+  end
+
+  desc "Configure Flavor for Dart"
+  private_lane :flavor_config do |options|
+    if !options[:flavor]
+      UI.message "No Flavor provided, going with default (develop)"
+      set_flavor(flavor: "develop")
+      next
+    end
+    if options[:flavor] == "develop" || options[:flavor] == "staging" || options[:flavor] == "production"
+      set_flavor(flavor: options[:flavor])
+    else
+      UI.abort_with_message! "No supported flavor provided (#{options[:flavor]}). Supported values are 'develop', 'staging', 'production'."
+    end
+  end
+  def set_flavor(flavor:) 
+    UI.message "Setting flavor to #{flavor}"
+    ENV[$dart_define_env_key] = "flavor=#{flavor}"
+  end
+
+
+  desc "Install Certificates and Provisioning Profiles"
+  lane :match_sync do |options|
+    login
+    if $is_ci  
+      UI.message "Installing Apple Certificates and Provisioning Profiles for CI"
+      setup_keychain
+      match(
+        readonly: true,
+        type: "appstore",
+        keychain_name: $keychain_name,
+        keychain_password: $keychain_password
+      )
+    elsif
+      UI.message "Installing Apple Certificates and Provisioning Profiles for Local Development"
+      UI.message "Installing App Store Certificate and Provisioning Profile"
+      match(
+        readonly: true,
+        type: "appstore"
+
+      )
+
+      UI.message "Installing Development Certificate and Provisioning Profile"
+      match(
+        readonly: true,
+        app_identifier: $app_identifier,
+        type: "development",
+      )
+    end 
+  end
+
+  desc "Update Provisioning Profiles"
+  lane :match_update do |options|
+    if $is_ci
+      UI.abort_with_message! "Only run match_update locally!"
+    elsif
+      UI.message "Updating Provisioning Profiles for New Devices"
+
+      UI.message "Updating App Store Provisioning Profile"
+      match(
+        readonly: false,
+        type: "appstore"
+      )
+
+      UI.message "Updating Development Provisioning Profile"
+      match(
+        readonly: false,
+        type: "development"
+      )
+    end
+  end
+  desc "Build iOS App"
+  lane :build do |options|
+    flavor_config options
+    gym(
+      workspace: "ios/Runner.xcworkspace",
+      xcargs: "-allowProvisioningUpdates",
+    )
+  end
+
+  # key_id
+  # issuer_id
+  # key_filepath/content
+
+  desc "Get Apple API Token"
+  private_lane :login do |options|
+    app_store_connect_api_key(
+      key_id: "B4U7H49DDK",
+      issuer_id: "b2336353-842b-4d74-8c81-a95ff092775d",
+      key_filepath: "/Users/thomaslau/Downloads/soulmateApp/iso/AuthKey_B4U7H49DDK.p8",
+      duration: 1200, # optional (maximum 1200)
+      in_house: false # optional but may be required if using match/sigh
+    )
+    UI.message "this is the api key#{api_key}"
+
+  end
+
+  # desc "Push a new release build to the App Store"
+  # lane :release do
+  #   match(type: 'appstore')
+
+  #   increment_build_number(xcodeproj: "Runner.xcodeproj")
+  #   build_app(workspace: "Runner.xcworkspace", scheme: "Runner")
+  #   upload_to_app_store
+  # end
+
+  # lane :beta_ci do
+  #   setup_ci if ENV['CI']
+  #   match(type: 'appstore')
+  #   increment_build_number(build_number: number_of_commits)
+  #   build_app
+  #   changelog_from_git_commits # this will generate the changelog based on your last commits
+  #   upload_to_testflight(skip_waiting_for_build_processing: true)
+  # end
 
  
 

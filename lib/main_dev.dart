@@ -4,10 +4,10 @@ import 'package:flutter_starter/home_page.dart';
 
 void main() {
   AppConfig.create(
-    appName: "Prod Flavor Example",
-    baseUrl: "https://dwirandyh.com",
-    seedColor: Colors.yellow,
-    flavor: Flavor.prod,
+    appName: "Dev Flavor Example",
+    baseUrl: "https://dev.dwirandyh.com",
+    seedColor: Colors.blue,
+    flavor: Flavor.dev,
   );
 
   runApp(const MyApp());

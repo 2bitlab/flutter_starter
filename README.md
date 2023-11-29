@@ -5,6 +5,12 @@ flutter_starter
 
 ## Getting Started
 
+logo 变更后需要运行，[详细了解](https://github.dev/fluttercommunity/flutter_launcher_icons/tree/master/example/flavors)
+
+```bash
+flutter pub run flutter_launcher_icons
+```
+
 ### ios
 
 截图

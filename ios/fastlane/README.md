@@ -15,18 +15,34 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 ## iOS
 
-### ios release
+### ios match_sync
 
 ```sh
-[bundle exec] fastlane ios release
+[bundle exec] fastlane ios match_sync
 ```
 
-Push a new release build to the App Store
+Install Certificates and Provisioning Profiles
 
-### ios beta
+### ios match_update
 
 ```sh
-[bundle exec] fastlane ios beta
+[bundle exec] fastlane ios match_update
+```
+
+Update Provisioning Profiles
+
+### ios build
+
+```sh
+[bundle exec] fastlane ios build
+```
+
+Build iOS App
+
+### ios screenshots
+
+```sh
+[bundle exec] fastlane ios screenshots
 ```
 
 
