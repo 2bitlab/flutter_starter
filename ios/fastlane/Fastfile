@@ -1,208 +1,65 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
 default_platform(:ios)
 
-fastlane_require "dotenv"
-
-before_all do
-  Dotenv.overload ".env.secrets"
-end
-
-$dart_define_env_key = "DART_DEFINE"
-$flavor = "dev"
-
-desc "Configure Flavor for Dart"
-private_lane :flavor_config do |options|
-    if !options[:flavor]
-        UI.message "No Flavor provided, going with default (dev)"
-        set_flavor(flavor: "dev")
-        next
-    end
-
-    if options[:flavor] == "dev" || options[:flavor] == "prod"
-        set_flavor(flavor: options[:flavor])
-    else
-        UI.abort_with_message! "No supported flavor provided (#{options[:flavor]}). Supported values are 'dev', 'prod'."
-    end
-end
-
-def set_flavor(flavor:)
-    UI.message "Setting flavor to #{flavor}"
-    $flavor = "#{flavor}"
-    ENV[$dart_define_env_key] = "flavor=#{flavor}"
-end
-  
 platform :ios do
-  $keychain_name = SecureRandom.uuid
-  $keychain_password = SecureRandom.hex(100)
-  $is_ci = ENV['CI']
-  
-
-  after_all do |lane, options|
-      remove_keychain
-  end
-
-  error do |lane, exception, options|
-      remove_keychain
-  end
-
-  desc "Install Certificates and Provisioning Profiles"
-  lane :match_sync do |options|
-    login
-    if $is_ci  
-        UI.message "Installing Apple Certificates and Provisioning Profiles for CI"
-        setup_keychain
-        match(
-            readonly: true,
-            type: "appstore",
-            keychain_name: $keychain_name,
-            keychain_password: $keychain_password
-        )
-    elsif
-        UI.message "Installing Apple Certificates and Provisioning Profiles for Local Development"
-
-        UI.message "Installing App Store Certificate and Provisioning Profile"
-        match(
-            readonly: true,
-            type: "appstore"
-
-        )
-
-        UI.message "Installing Development Certificate and Provisioning Profile"
-        match(
-            readonly: true,
-            app_identifier: $app_identifier,
-            type: "development",
-        )
-    end 
-  end
-
-  desc "Update Provisioning Profiles"
-  lane :match_update do |options|
-      if $is_ci
-          UI.abort_with_message! "Only run match_update locally!"
-      elsif
-          UI.message "Updating Provisioning Profiles for New Devices"
-
-          UI.message "Updating App Store Provisioning Profile"
-          match(
-              readonly: false,
-              type: "appstore"
-          )
-
-          UI.message "Updating Development Provisioning Profile"
-          match(
-              readonly: false,
-              type: "development"
-          )
-      end
-  end
-
-  desc "Build iOS App"
-  lane :build do |options|
-      flavor_config options
-      if $is_ci
-        increment_build_number(build_number: number_of_commits)
-      elsif
-        increment_build_number(xcodeproj: "Runner.xcodeproj")
-      end
-      # gym(
-      #     workspace: "Runner.xcworkspace",
-      #     xcargs: "-allowProvisioningUpdates",
-      # )
-
-
-      build_app(workspace: "Runner.xcworkspace", scheme: $flavor)
-      upload
-  end
-
-  desc "Test iOS App"
-  lane :test do |options|
-      UI.abort_with_message! "No iOS tests are currently available or supported"
-  end
-
-  desc "Test flutter code"
-  lane :test_flutter do |options|
-      Dir.chdir("..") do
-          sh "flutter test"
-      end
-  end
-
-  desc "Upload for iOS"
-  lane :upload do |options|
-      upload_testflight options
-  end 
-
-
-  desc "Upload to Testflight"
-  private_lane :upload_testflight do |options|
-      login
-      upload_to_testflight(skip_waiting_for_build_processing: true)
-
-  end 
-
-  desc "Get Apple API Token"
-  private_lane :login do |options|
-      api_key = app_store_connect_api_key(
-        key_id: ENV['APP_STORE_CONNECT_API_KEY_KEY_ID'],
-        issuer_id: ENV['APP_STORE_CONNECT_API_KEY_ISSUER_ID'],
-        key_content: ENV['APP_STORE_CONNECT_API_KEY_KEY'],
-      
-        duration: 1200,
-        in_house: false,
-        is_key_content_base64: false
-      )
-      UI.message "this is the api key#{api_key}"
-
-  end
-
-  desc "Remove Keychain from CI"
-  private_lane :remove_keychain do |options|
-      if $is_ci
-          if File.exist?(File.expand_path("~/Library/Keychains/#{$keychain_name}-db"))
-              UI.important "Deleting keychain #{$keychain_name}"
-              delete_keychain(name: $keychain_name)
-          elsif
-              UI.important "No keychain file found to delete"
-          end
-      end
-  end
-
-  desc "Setup Keychain for match on CI"
-  private_lane :setup_keychain do |options|
-      create_keychain(
-          name: $keychain_name,
-          password: $keychain_password,
-          default_keychain: true,
-          unlock: false,
-          timeout: 0,
-          lock_when_sleeps: true
-      )
-  end
-  
-
-
-  # desc "Push a new release build to the App Store"
-  lane :beta do
-    # match(type: 'appstore')
-    login
-
+  desc "Push a new dev release build to the App Store"
+  lane :devStore do
     increment_build_number(xcodeproj: "Runner.xcodeproj")
     build_app(workspace: "Runner.xcworkspace", scheme: "dev")
+    login
+    upload_to_app_store
+  end
+
+  desc "Push a new dev release build to the testflight"
+  lane :devTest do
+    increment_build_number(xcodeproj: "Runner.xcodeproj")
+    build_app(workspace: "Runner.xcworkspace", scheme: "dev")
+    login
     upload_to_testflight(skip_waiting_for_build_processing: true)
   end
 
-  # lane :beta_ci do
-  #   setup_ci if ENV['CI']
-  #   match(type: 'appstore')
-  #   increment_build_number(build_number: number_of_commits)
-  #   build_app
-  #   changelog_from_git_commits # this will generate the changelog based on your last commits
-  #   upload_to_testflight(skip_waiting_for_build_processing: true)
-  # end
+  desc "Push a new prod release build to the App Store"
+  lane :prodStore do
+    increment_build_number(xcodeproj: "Runner.xcodeproj")
+    build_app(workspace: "Runner.xcworkspace", scheme: "prod")
+    login
+    upload_to_app_store(app_identifier: "com.tob.soulmate.prod")
+  end
 
- 
+  desc "Push a new prod release build to the testflight"
+  lane :prodTest do
+    increment_build_number(xcodeproj: "Runner.xcodeproj")
+    build_app(workspace: "Runner.xcworkspace", scheme: "prod")
+    login
+    upload_to_testflight(skip_waiting_for_build_processing: true, app_identifier: "com.tob.soulmate.prod")
+  end
 
-  lane :screenshots do
-    capture_screenshots # 通过快照运行应用以自动捕获屏幕截图
-    upload_to_app_store # 最终截屏发送到 App Store Connect
+  desc "Get Apple API Token"
+  private_lane :login do |options|
+    api_key = app_store_connect_api_key(
+      key_id: ENV['APP_STORE_CONNECT_API_KEY_KEY_ID'],
+      issuer_id: ENV['APP_STORE_CONNECT_API_KEY_ISSUER_ID'],
+      key_content: ENV['APP_STORE_CONNECT_API_KEY_KEY'],
+    
+      duration: 1200,
+      in_house: false,
+      is_key_content_base64: false
+    )
+    UI.message "this is the api key#{api_key}"
+
   end
 end

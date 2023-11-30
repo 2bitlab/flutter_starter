@@ -15,69 +15,37 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 ## iOS
 
-### ios match_sync
+### ios devStore
 
 ```sh
-[bundle exec] fastlane ios match_sync
+[bundle exec] fastlane ios devStore
 ```
 
-Install Certificates and Provisioning Profiles
+Push a new dev release build to the App Store
 
-### ios match_update
+### ios devTest
 
 ```sh
-[bundle exec] fastlane ios match_update
+[bundle exec] fastlane ios devTest
 ```
 
-Update Provisioning Profiles
+Push a new dev release build to the testflight
 
-### ios build
+### ios prodStore
 
 ```sh
-[bundle exec] fastlane ios build
+[bundle exec] fastlane ios prodStore
 ```
 
-Build iOS App
+Push a new prod release build to the App Store
 
-### ios test
+### ios prodTest
 
 ```sh
-[bundle exec] fastlane ios test
+[bundle exec] fastlane ios prodTest
 ```
 
-Test iOS App
-
-### ios test_flutter
-
-```sh
-[bundle exec] fastlane ios test_flutter
-```
-
-Test flutter code
-
-### ios upload
-
-```sh
-[bundle exec] fastlane ios upload
-```
-
-Upload for iOS
-
-### ios beta
-
-```sh
-[bundle exec] fastlane ios beta
-```
-
-
-
-### ios screenshots
-
-```sh
-[bundle exec] fastlane ios screenshots
-```
-
-
+Push a new prod release build to the testflight
 
 ----
 
