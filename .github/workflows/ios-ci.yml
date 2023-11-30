@@ -1,0 +1,37 @@
+name: Application Build
+
+on:
+  push
+  
+jobs:
+  build:
+    name: Build Flutter Application
+    runs-on: macOS-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.3'
+          channel: 'stable'
+      - run: |
+          flutter --version
+          
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze project source
+        run: flutter analyze
+
+      - name: Run tests
+        run: flutter test
+    
+      - name: Run build
+        run: |
+          flutter build ios --release --no-codesign --flavor=dev
+          flutter build ios --release --no-codesign --flavor=prod

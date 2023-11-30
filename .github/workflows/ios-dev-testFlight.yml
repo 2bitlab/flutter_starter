@@ -1,9 +1,9 @@
 name: Application Build
 
-on:
+on: 
   push:
-    tags:
-      - 'v*-beta'
+    branches:
+      - 'dev-testFlight'
 jobs:
   build:
     name: Build Flutter Application
@@ -37,7 +37,7 @@ jobs:
       - name: 📱 Build iOS Application
         run: |
             cd ios
-            bundle exec fastlane ios dev_prod
+            bundle exec fastlane ios dev_test
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}

@@ -17,7 +17,9 @@ default_platform(:ios)
 
 platform :ios do
   desc "Push a new dev release build to the App Store"
-  lane :devStore do
+  lane :dev_store do
+    setup_ci if ENV['CI']
+    certificates_dev
     increment_build_number(xcodeproj: "Runner.xcodeproj")
     build_app(workspace: "Runner.xcworkspace", scheme: "dev")
     login
@@ -25,7 +27,9 @@ platform :ios do
   end
 
   desc "Push a new dev release build to the testflight"
-  lane :devTest do
+  lane :dev_test do
+    setup_ci if ENV['CI']
+    certificates_dev
     increment_build_number(xcodeproj: "Runner.xcodeproj")
     build_app(workspace: "Runner.xcworkspace", scheme: "dev")
     login
@@ -33,7 +37,9 @@ platform :ios do
   end
 
   desc "Push a new prod release build to the App Store"
-  lane :prodStore do
+  lane :prod_store do
+    setup_ci if ENV['CI']
+    certificates_prod
     increment_build_number(xcodeproj: "Runner.xcodeproj")
     build_app(workspace: "Runner.xcworkspace", scheme: "prod")
     login
@@ -41,11 +47,23 @@ platform :ios do
   end
 
   desc "Push a new prod release build to the testflight"
-  lane :prodTest do
+  lane :prod_test do
+    setup_ci if ENV['CI']
+    certificates_prod
     increment_build_number(xcodeproj: "Runner.xcodeproj")
     build_app(workspace: "Runner.xcworkspace", scheme: "prod")
     login
     upload_to_testflight(skip_waiting_for_build_processing: true, app_identifier: "com.tob.soulmate.prod")
+  end
+
+  private_lane :certificates_dev do
+    match(type: "development", app_identifier: ["com.tob.soulmate.dev"], readonly: true)
+    match(type: "appstore", app_identifier: ["com.tob.soulmate.dev"], readonly: true)
+  end
+
+  private_lane :certificates_prod do
+    match(type: "development", app_identifier: ["com.tob.soulmate.prod"], readonly: true)
+    match(type: "appstore", app_identifier: ["com.tob.soulmate.prod"], readonly: true)
   end
 
   desc "Get Apple API Token"
