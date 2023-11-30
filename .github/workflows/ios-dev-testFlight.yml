@@ -12,23 +12,22 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: '3.0'
-          bundler-cache: true
-          working-directory: 'ios'
-          
-      - name: Cache Flutter dependencies
+      - name: Setup Flutter Cache
+        id: cache-flutter
         uses: actions/cache@v3
         with:
-          path: /opt/hostedtoolcache/flutter
-          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          path: /Users/runner/hostedtoolcache/flutter
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-
 
-      - uses: subosito/flutter-action@v2
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        if: steps.cache-flutter.outputs.cache-hit != 'true'
         with:
-          channel: 'stable'
+          channel: "stable"
       - run: flutter --version
-
+      
       - name: Install dependencies
         run: flutter pub get
 
@@ -37,6 +36,12 @@ jobs:
 
       - name: Run tests
         run: flutter test
+      
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0'
+          bundler-cache: true
+          working-directory: 'ios'
 
       - name: 📱 Build iOS Application
         uses: maierj/fastlane-action@v3.0.0
