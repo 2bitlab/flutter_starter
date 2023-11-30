@@ -1,4 +1,4 @@
-app_identifier("com.tob.soulmate") # The bundle identifier of your app
+app_identifier("com.tob.soulmate.dev") # The bundle identifier of your app
 apple_id("thomas_0836@qq.com") # Your Apple Developer Portal username
 
 itc_team_id("126761102") # App Store Connect Team ID

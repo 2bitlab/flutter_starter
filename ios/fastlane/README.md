@@ -15,21 +15,37 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 ## iOS
 
-### ios release
+### ios dev_store
 
 ```sh
-[bundle exec] fastlane ios release
+[bundle exec] fastlane ios dev_store
 ```
 
-Push a new release build to the App Store
+Push a new dev release build to the App Store
 
-### ios beta
+### ios dev_test
 
 ```sh
-[bundle exec] fastlane ios beta
+[bundle exec] fastlane ios dev_test
 ```
 
+Push a new dev release build to the testflight
 
+### ios prod_store
+
+```sh
+[bundle exec] fastlane ios prod_store
+```
+
+Push a new prod release build to the App Store
+
+### ios prod_test
+
+```sh
+[bundle exec] fastlane ios prod_test
+```
+
+Push a new prod release build to the testflight
 
 ----
 
