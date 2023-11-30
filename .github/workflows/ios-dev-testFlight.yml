@@ -15,6 +15,14 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.0'
+          bundler-cache: true
+          working-directory: 'ios'
+          
+      - name: Cache Flutter dependencies
+        uses: actions/cache@v3
+        with:
+          path: /opt/hostedtoolcache/flutter
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
 
       - uses: subosito/flutter-action@v2
         with:
@@ -30,17 +38,11 @@ jobs:
       - name: Run tests
         run: flutter test
 
-      - name: bundle install
-        run: gem install bundler
-        
-      - name: Intall fastlane
-        run: gem install fastlane
-
       - name: 📱 Build iOS Application
-        run: |
-            cd ios
-            bundle install
-            bundle exec fastlane ios dev_test
+        uses: maierj/fastlane-action@v3.0.0
+        with:
+          lane: 'ios dev_test'
+          subdirectory: 'ios'
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
