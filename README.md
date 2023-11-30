@@ -19,20 +19,28 @@ flutter pub run flutter_launcher_icons
 
 需要在 [identifiers](https://developer.apple.com/account/resources/identifiers/list) 上建立对应的identifier，然后替换 `app_identifier` 的值
 
-本地构建
+安装依赖
 
 ```bash
-cd ios
-bundle exec fastlane ios dev_test
-bundle exec fastlane ios dev_store
+gem install bundler
+gem install fastlane
+flutter pub get
 ```
 
-生产构建
+构建 dev 版本
 
 ```bash
 cd ios
-bundle exec fastlane ios prod_test
-bundle exec fastlane ios prod_store
+bundle exec fastlane ios dev_test # 构建并上传到 testFlight
+bundle exec fastlane ios dev_store # 构建并上传到 app store
+```
+
+构建 prod 版本
+
+```bash
+cd ios
+bundle exec fastlane ios prod_test # 构建并上传到 testFlight
+bundle exec fastlane ios prod_store # 构建并上传到 app store
 ```
 
 截图
