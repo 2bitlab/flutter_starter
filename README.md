@@ -57,7 +57,7 @@ fastlane release # 发布
 APP_STORE_CONNECT_API_KEY_ISSUER_ID
 APP_STORE_CONNECT_API_KEY_KEY # .p8 密钥的内容
 APP_STORE_CONNECT_API_KEY_KEY_ID
-MATCH_GIT_PRIVATE_KEY # match 时的 git 仓库的请求token
+MATCH_GIT_PRIVATE_KEY # match 时的 git 仓库的请求token，如果你已经有权限这个不需要，在cicd的环境需要
 MATCH_KEYCHAIN_PASSWORD # 运行 fastlane match development | appstore 时输入过的密码
 MATCH_PASSWORD # 运行 fastlane match development | appstore 时输入过的密码
 ```

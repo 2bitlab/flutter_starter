@@ -39,6 +39,7 @@ jobs:
       - name: 📱 Build iOS Application
         run: |
             cd ios
+            bundle install
             bundle exec fastlane ios prod_test
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
