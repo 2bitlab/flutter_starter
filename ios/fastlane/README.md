@@ -39,6 +39,38 @@ Update Provisioning Profiles
 
 Build iOS App
 
+### ios test
+
+```sh
+[bundle exec] fastlane ios test
+```
+
+Test iOS App
+
+### ios test_flutter
+
+```sh
+[bundle exec] fastlane ios test_flutter
+```
+
+Test flutter code
+
+### ios upload
+
+```sh
+[bundle exec] fastlane ios upload
+```
+
+Upload for iOS
+
+### ios beta
+
+```sh
+[bundle exec] fastlane ios beta
+```
+
+
+
 ### ios screenshots
 
 ```sh

@@ -7,7 +7,14 @@
         {
             "name": "flutter_starter",
             "request": "launch",
-            "type": "dart"
+            "type": "dart",
+            "args": ["--target", "lib/main_dev.dart" ]
+        },
+        {
+            "name": "flutter_starter (dev)",
+            "request": "launch",
+            "type": "dart",
+            "args": ["--flavor", "dev", "--target", "lib/main_dev.dart" ]
         },
         {
             "name": "flutter_starter (profile mode)",

@@ -1,7 +1,9 @@
 # flutter_starter
 flutter_starter
 
-替换所有 `flutter_starter` 成你的项目名
+替换所有 `flutter_starter` 成你的项目名，还有文件名内包含`flutter_starter`的
+
+将 `com.tob.soulmate` 替换成具体的项目包名，然后`com.tob` 也是需要替换的。
 
 ## Getting Started
 
@@ -12,6 +14,18 @@ flutter pub run flutter_launcher_icons
 ```
 
 ### ios
+
+本地构建
+
+```bash
+bundle exec fastlane ios build
+```
+
+生产构建
+
+```bash
+bundle exec fastlane ios build flavor:prod
+```
 
 截图
 
