@@ -22,7 +22,7 @@ jobs:
       - run: flutter --version
 
       - name: bundle install
-        run: bundle install
+        run: gem install bundler
 
       - name: Install dependencies
         run: flutter pub get
