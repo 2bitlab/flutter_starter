@@ -30,17 +30,12 @@ jobs:
       - name: Run tests
         run: flutter test
 
-      - name: bundle install
-        run: gem install bundler
-      
-      - name: Intall fastlane
-        run: gem install fastlane
-
       - name: 📱 Build iOS Application
-        run: |
-            cd ios
-            bundle install
-            bundle exec fastlane ios prod_store
+        uses: maierj/fastlane-action@v3.0.0
+        with:
+          lane: 'ios prod_store'
+          subdirectory: 'ios'
+        
         env:
           MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
           MATCH_GIT_PRIVATE_KEY: ${{ secrets.MATCH_GIT_PRIVATE_KEY }}
