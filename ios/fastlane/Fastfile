@@ -146,7 +146,7 @@ platform :ios do
       issuer_id: ENV['APP_STORE_CONNECT_API_KEY_ISSUER_ID'],
       key_content: ENV['APP_STORE_CONNECT_API_KEY_KEY'],
     
-      duration: 1200,
+      duration: 2400,
       in_house: false,
       is_key_content_base64: false
     )
