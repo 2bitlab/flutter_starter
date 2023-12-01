@@ -16,68 +16,123 @@
 default_platform(:ios)
 
 platform :ios do
+
+  $keychain_name = SecureRandom.uuid
+  $keychain_password = SecureRandom.hex(100)
+  $is_ci = ENV['CI']
+
+  after_all do |lane, options|
+    remove_keychain
+  end
+
+  error do |lane, exception, options|
+    remove_keychain
+  end
+
+  desc "Remove Keychain from CI"
+  private_lane :remove_keychain do |options|
+      if $is_ci
+          if File.exist?(File.expand_path("~/Library/Keychains/#{$keychain_name}-db"))
+              UI.important "Deleting keychain #{$keychain_name}"
+              delete_keychain(name: $keychain_name)
+          elsif
+              UI.important "No keychain file found to delete"
+          end
+      end
+  end
+
+  desc "Setup Keychain for match on CI"
+  private_lane :setup_keychain do |options|
+      create_keychain(
+          name: $keychain_name,
+          password: $keychain_password,
+          default_keychain: true,
+          unlock: false,
+          timeout: 0,
+          lock_when_sleeps: true
+      )
+  end
+
+
   desc "Push a new dev release build to the App Store"
   lane :dev_store do
-    init_ci
-    certificates_dev
-    build_number
-    build_app(workspace: "Runner.xcworkspace", scheme: "dev")
-    
+    private_lane
     upload_to_app_store
   end
 
   desc "Push a new dev release build to the testflight"
   lane :dev_test do
+    private_lane
+    upload_to_testflight(skip_waiting_for_build_processing: true)
+  end
+
+  private_lane :build_dev do
     init_ci
     certificates_dev
     build_number
     build_app(workspace: "Runner.xcworkspace", scheme: "dev")
-    
-    upload_to_testflight(skip_waiting_for_build_processing: true)
   end
 
   desc "Push a new prod release build to the App Store"
   lane :prod_store do
-    init_ci
-    certificates_prod
-    build_number
-    build_app(workspace: "Runner.xcworkspace", scheme: "prod")
-    
+    build_prod
     upload_to_app_store(app_identifier: "com.tob.soulmate.prod")
   end
 
   desc "Push a new prod release build to the testflight"
   lane :prod_test do
+    build_prod
+    upload_to_testflight(skip_waiting_for_build_processing: true, app_identifier: "com.tob.soulmate.prod")
+  end
+
+  private_lane :build_prod do
     init_ci
     certificates_prod
     build_number
     build_app(workspace: "Runner.xcworkspace", scheme: "prod")
-    
-    upload_to_testflight(skip_waiting_for_build_processing: true, app_identifier: "com.tob.soulmate.prod")
   end
 
   private_lane :init_ci do
-    setup_ci if ENV['CI']
+    setup_ci if $is_ci
     login
+    if $is_ci  
+      UI.message "Installing Apple Certificates and Provisioning Profiles for CI"
+      setup_keychain
+    end
   end
 
   private_lane :build_number do
     increment_build_number(build_number: latest_testflight_build_number + 1)
-    # if ENV['CI']
-      
-    # else
-    #   increment_build_number(xcodeproj: "Runner.xcodeproj")
-    # end
   end
 
   private_lane :certificates_dev do
-    match(type: "development", app_identifier: ["com.tob.soulmate.dev"])
-    match(type: "appstore", app_identifier: ["com.tob.soulmate.dev"])
+    if $is_ci  
+      match(
+        type: "appstore",
+        app_identifier: ["com.tob.soulmate.dev"], 
+        readonly: true,
+        keychain_name: $keychain_name,
+        keychain_password: $keychain_password
+      )
+    elsif
+      match(type: "development", app_identifier: ["com.tob.soulmate.dev"])
+      match(type: "appstore", app_identifier: ["com.tob.soulmate.dev"])
+    end 
   end
 
   private_lane :certificates_prod do
-    match(type: "development", app_identifier: ["com.tob.soulmate.prod"])
-    match(type: "appstore", app_identifier: ["com.tob.soulmate.prod"])
+    if $is_ci  
+      match(
+        type: "appstore",
+        app_identifier: ["com.tob.soulmate.prod"], 
+        readonly: true,
+        keychain_name: $keychain_name,
+        keychain_password: $keychain_password
+      )
+    elsif
+      match(type: "development", app_identifier: ["com.tob.soulmate.prod"])
+      match(type: "appstore", app_identifier: ["com.tob.soulmate.prod"])
+    end
   end
 
   desc "Get Apple API Token"
