@@ -70,7 +70,9 @@ platform :ios do
     init_ci
     certificates_dev
     build_number
+    disable_automatic_code_signing(path: "./Runner.xcodeproj")
     build_app(workspace: "Runner.xcworkspace", scheme: "dev")
+    enable_automatic_code_signing(path: "./Runner.xcodeproj")
   end
 
   desc "Push a new prod release build to the App Store"
@@ -89,7 +91,9 @@ platform :ios do
     init_ci
     certificates_prod
     build_number
+    disable_automatic_code_signing(path: "./Runner.xcodeproj")
     build_app(workspace: "Runner.xcworkspace", scheme: "prod")
+    enable_automatic_code_signing(path: "./Runner.xcodeproj")
   end
 
   private_lane :init_ci do
