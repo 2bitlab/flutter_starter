@@ -18,10 +18,9 @@ default_platform(:ios)
 platform :ios do
   desc "Push a new dev release build to the App Store"
   lane :dev_store do
-    setup_ci if ENV['CI']
-    login
+    init
     certificates_dev
-    increment_build_number(xcodeproj: "Runner.xcodeproj")
+    build_number
     build_app(workspace: "Runner.xcworkspace", scheme: "dev")
     
     upload_to_app_store
@@ -29,10 +28,9 @@ platform :ios do
 
   desc "Push a new dev release build to the testflight"
   lane :dev_test do
-    setup_ci if ENV['CI']
-    login
+    init
     certificates_dev
-    increment_build_number(xcodeproj: "Runner.xcodeproj")
+    build_number
     build_app(workspace: "Runner.xcworkspace", scheme: "dev")
     
     upload_to_testflight(skip_waiting_for_build_processing: true)
@@ -40,10 +38,9 @@ platform :ios do
 
   desc "Push a new prod release build to the App Store"
   lane :prod_store do
-    setup_ci if ENV['CI']
-    login
+    init
     certificates_prod
-    increment_build_number(xcodeproj: "Runner.xcodeproj")
+    build_number
     build_app(workspace: "Runner.xcworkspace", scheme: "prod")
     
     upload_to_app_store(app_identifier: "com.tob.soulmate.prod")
@@ -51,13 +48,25 @@ platform :ios do
 
   desc "Push a new prod release build to the testflight"
   lane :prod_test do
-    setup_ci if ENV['CI']
-    login
+    init
     certificates_prod
-    increment_build_number(xcodeproj: "Runner.xcodeproj")
+    build_number
     build_app(workspace: "Runner.xcworkspace", scheme: "prod")
     
     upload_to_testflight(skip_waiting_for_build_processing: true, app_identifier: "com.tob.soulmate.prod")
+  end
+
+  private_lane :init do
+    setup_ci if ENV['CI']
+    login
+  end
+
+  private_lane :build_number do
+    if ENV['CI']
+      increment_build_number(build_number: number_of_commits)
+    else
+      increment_build_number(xcodeproj: "Runner.xcodeproj")
+    end
   end
 
   private_lane :certificates_dev do
