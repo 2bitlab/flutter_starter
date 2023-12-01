@@ -19,51 +19,55 @@ platform :ios do
   desc "Push a new dev release build to the App Store"
   lane :dev_store do
     setup_ci if ENV['CI']
+    login
     certificates_dev
     increment_build_number(xcodeproj: "Runner.xcodeproj")
     build_app(workspace: "Runner.xcworkspace", scheme: "dev")
-    login
+    
     upload_to_app_store
   end
 
   desc "Push a new dev release build to the testflight"
   lane :dev_test do
     setup_ci if ENV['CI']
+    login
     certificates_dev
     increment_build_number(xcodeproj: "Runner.xcodeproj")
     build_app(workspace: "Runner.xcworkspace", scheme: "dev")
-    login
+    
     upload_to_testflight(skip_waiting_for_build_processing: true)
   end
 
   desc "Push a new prod release build to the App Store"
   lane :prod_store do
     setup_ci if ENV['CI']
+    login
     certificates_prod
     increment_build_number(xcodeproj: "Runner.xcodeproj")
     build_app(workspace: "Runner.xcworkspace", scheme: "prod")
-    login
+    
     upload_to_app_store(app_identifier: "com.tob.soulmate.prod")
   end
 
   desc "Push a new prod release build to the testflight"
   lane :prod_test do
     setup_ci if ENV['CI']
+    login
     certificates_prod
     increment_build_number(xcodeproj: "Runner.xcodeproj")
     build_app(workspace: "Runner.xcworkspace", scheme: "prod")
-    login
+    
     upload_to_testflight(skip_waiting_for_build_processing: true, app_identifier: "com.tob.soulmate.prod")
   end
 
   private_lane :certificates_dev do
-    match(type: "development", app_identifier: ["com.tob.soulmate.dev"], readonly: true)
-    match(type: "appstore", app_identifier: ["com.tob.soulmate.dev"], readonly: true)
+    match(type: "development", app_identifier: ["com.tob.soulmate.dev"])
+    match(type: "appstore", app_identifier: ["com.tob.soulmate.dev"])
   end
 
   private_lane :certificates_prod do
-    match(type: "development", app_identifier: ["com.tob.soulmate.prod"], readonly: true)
-    match(type: "appstore", app_identifier: ["com.tob.soulmate.prod"], readonly: true)
+    match(type: "development", app_identifier: ["com.tob.soulmate.prod"])
+    match(type: "appstore", app_identifier: ["com.tob.soulmate.prod"])
   end
 
   desc "Get Apple API Token"
