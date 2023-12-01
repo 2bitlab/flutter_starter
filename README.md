@@ -66,6 +66,18 @@ MATCH_PASSWORD # 运行 fastlane match development | appstore 时输入过的密
 
 [获取 MATCH_GIT_PRIVATE_KEY](https://github.com/settings/tokens)
 
+注意 配置的 [ios/fastlane/Matchfile](./ios/fastlane/Matchfile) 中 `git_url` 是 `https` 还是 `git`。
+
+`git` 的话需要使用 `MATCH_GIT_BASIC_AUTHORIZATION`
+
+`MATCH_GIT_BASIC_AUTHORIZATION` 的获取方式
+
+```bash
+echo -n your_github_username:your_personal_access_token | base64
+```
+
+`https` 的话需要使用 `MATCH_GIT_PRIVATE_KEY`
+
 ## 常见问题
 
 - [解决gem安装慢或卡住](https://juejin.cn/post/6987549601343471623)
