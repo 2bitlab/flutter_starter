@@ -1,4 +1,4 @@
-git_url("git@github.com:2bitlab/fastlane_match.git")
+git_url("https://github.com/2bitlab/fastlane_match.git")
 git_branch("com.tob.soulmate")
 storage_mode("git")
 
