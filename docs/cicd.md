@@ -48,3 +48,5 @@ fastlane spaceauth -u user@email.com
 - [示例项目](https://github.com/swiftdo/flutter_best_practice)
 
 - [GitHub Actions CI/CD for Flutter Fastlane (iOS) with possible mistakes](https://dev.to/subash_hungry/github-actions-cicd-for-flutter-fastlane-ios-with-possible-mistakes-pl0)
+
+- [gallery cicd 示例](https://github.dev/flutter/gallery/tree/main/.github/workflows)
