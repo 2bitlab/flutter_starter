@@ -56,13 +56,13 @@ platform :ios do
 
   desc "Push a new dev release build to the App Store"
   lane :dev_store do
-    private_lane
+    build_dev
     upload_to_app_store
   end
 
   desc "Push a new dev release build to the testflight"
   lane :dev_test do
-    private_lane
+    build_dev
     upload_to_testflight(skip_waiting_for_build_processing: true)
   end
 
