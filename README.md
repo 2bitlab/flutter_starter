@@ -78,6 +78,14 @@ echo -n your_github_username:your_personal_access_token | base64
 
 `https` 的话需要使用 `MATCH_GIT_PRIVATE_KEY`
 
+### android
+
+```bash
+flutter build appbundle --flavor=dev
+flutter build appbundle --flavor=prod
+```
+
+
 ## 常见问题
 
 - [解决gem安装慢或卡住](https://juejin.cn/post/6987549601343471623)
